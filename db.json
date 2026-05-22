@@ -1,0 +1,38 @@
+{
+  "users": [
+    {
+      "username": "Hady",
+      "password": "12345*"
+    },
+    {
+      "username": "Mostafa",
+      "password": "12345*"
+    },
+    {
+      "username": "Joe E.",
+      "password": "12345*"
+    },
+    {
+      "username": "Joe S.",
+      "password": "12345*"
+    },
+    {
+      "username": "Mo S.",
+      "password": "12345*"
+    },
+    {
+      "username": "Mo I.",
+      "password": "12345*"
+    },
+    {
+      "username": "Mazen",
+      "password": "12345*"
+    },
+    {
+      "username": "Abdo",
+      "password": "12345*"
+    }
+  ],
+  "scores": {},
+  "playedStates": {}
+}

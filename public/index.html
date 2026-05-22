@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Fazoora — Daily Puzzle Platform</title>
+ 
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
+ 
+  <link rel="stylesheet" href="/css/style.css" />
+</head>
+<body>
+  <div class="scene-bg" id="sceneBg"></div>
+ 
+  <div class="character character--left"  id="charLeft"  aria-hidden="true"></div>
+  <div class="character character--right" id="charRight" aria-hidden="true"></div>
+ 
+  <section class="screen" id="screen-login" role="main" aria-label="Login Screen">
+    <div class="card login-card">
+ 
+      <div class="logo-wrap">
+        <div class="logo-placeholder" aria-label="Fazoora Logo">
+          <span class="logo-icon">🧩</span>
+          <h1 class="logo-text">Fazoora</h1>
+          <p class="logo-tagline">Your daily puzzle awaits!</p>
+        </div>
+      </div>
+ 
+      <form class="login-form" id="loginForm" novalidate>
+        <div class="field-group">
+          <label for="usernameInput" class="field-label">Username</label>
+          <input
+            type="text"
+            id="usernameInput"
+            class="field-input"
+            placeholder="Enter your username"
+            autocomplete="username"
+            required
+          />
+        </div>
+ 
+        <div class="field-group">
+          <label for="passwordInput" class="field-label">Password</label>
+          <input
+            type="password"
+            id="passwordInput"
+            class="field-input"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+            required
+          />
+        </div>
+ 
+        <p class="form-error" id="loginError" role="alert" aria-live="assertive"></p>
+ 
+        <button type="submit" class="btn btn--primary btn--full" id="loginBtn">
+          <span class="btn-label">Let's Play! 🎮</span>
+          <span class="btn-loader" aria-hidden="true"></span>
+        </button>
+      </form>
+ 
+    </div>
+  </section>
+ 
+  <section class="screen hidden" id="screen-menu" aria-label="Main Menu">
+    <div class="card menu-card">
+ 
+      <header class="menu-header">
+        <div class="menu-header__greet">
+          <span class="greet-emoji">👋</span>
+          <span>Hello, <strong id="displayNameLabel">Player</strong>!</span>
+        </div>
+        <button class="btn btn--ghost btn--sm" id="logoutBtn" aria-label="Log out">
+          Logout
+        </button>
+      </header>
+ 
+      <div class="daily-card" id="dailyCard">
+ 
+        <div class="daily-card__badge">Today's Fazoora</div>
+ 
+        <div class="daily-card__body">
+          <h2 class="daily-card__title" id="dailyTitle">Loading…</h2>
+          <p  class="daily-card__desc"  id="dailyDesc">Please wait…</p>
+ 
+          <div id="playSection">
+            <button class="btn btn--accent btn--lg" id="playBtn" aria-label="Play today's game">
+              ▶ Play Now!
+            </button>
+          </div>
+ 
+          <div id="completedSection" class="hidden">
+            <div class="completed-badge">
+              <span class="completed-badge__icon">✅</span>
+              <span class="completed-badge__label">Completed Today!</span>
+            </div>
+            <p class="completed-score">
+              Your score: <strong id="completedScoreLabel">—</strong>
+            </p>
+          </div>
+        </div>
+ 
+      </div>
+ 
+      <nav class="menu-nav" aria-label="Platform navigation">
+        <button class="btn btn--secondary" id="scoreboardBtn">
+          🏆 Scoreboard
+        </button>
+      </nav>
+ 
+    </div>
+  </section>
+ 
+  <section class="screen hidden" id="screen-game" aria-label="Game Canvas">
+    <div class="game-shell">
+ 
+      <div class="game-hud">
+        <button class="btn btn--ghost btn--sm" id="quitGameBtn" aria-label="Quit game and return to menu">
+          ← Quit
+        </button>
+        <div class="hud-center">
+          <span class="hud-title" id="hudTitle">Game</span>
+        </div>
+        <div class="hud-info">
+          <span class="hud-item" id="hudScore">Score: 0</span>
+          <span class="hud-item" id="hudTimer">⏱ —</span>
+        </div>
+      </div>
+ 
+      <canvas
+        id="gameCanvas"
+        class="game-canvas"
+        width="800"
+        height="500"
+        aria-label="Game area"
+      ></canvas>
+ 
+      <div class="game-overlay hidden" id="gameOverlay" role="dialog" aria-modal="true" aria-live="assertive">
+        <div class="game-overlay__box">
+          <div class="overlay-icon" id="overlayIcon">🎉</div>
+          <h2 class="overlay-title" id="overlayTitle">Game Over!</h2>
+          <p  class="overlay-body"  id="overlayBody"></p>
+          <div class="overlay-actions">
+            <button class="btn btn--primary" id="overlayPrimaryBtn">View Scoreboard</button>
+            <button class="btn btn--ghost"   id="overlaySecondaryBtn">Back to Menu</button>
+          </div>
+        </div>
+      </div>
+ 
+    </div>
+  </section>
+ 
+  <section class="screen hidden" id="screen-scoreboard" aria-label="Scoreboard">
+    <div class="card scoreboard-card">
+ 
+      <div class="scoreboard-header">
+        <button class="btn btn--ghost btn--sm" id="backFromScoreboardBtn" aria-label="Back to menu">
+          ← Back
+        </button>
+        <h2 class="scoreboard-title">🏆 Hall of Fame</h2>
+      </div>
+ 
+      <div class="scoreboard-loading" id="scoreboardLoading">
+        <div class="spinner" aria-label="Loading…"></div>
+        <p>Fetching scores…</p>
+      </div>
+      <ol class="scoreboard-list" id="scoreboardList" aria-label="Player rankings">
+      </ol>
+ 
+    </div>
+  </section>
+  <div class="toast" id="toast" role="status" aria-live="polite"></div>
+  <script src="/js/api.js"></script>
+  <script src="/games/day1.js"></script>
+  <script src="/js/game-engine.js"></script>
+  <script src="/js/main.js"></script>
+ 
+</body>
+</html>
