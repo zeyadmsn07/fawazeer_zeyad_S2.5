@@ -15,25 +15,34 @@
 <body>
 
   <!-- ═══════════════════════════════════════════════════════════════
+       BACKGROUND MUSIC
+       Plays across all screens. MusicManager handles autoplay policy.
+       ═══════════════════════════════════════════════════════════════ -->
+  <audio id="bgMusic" loop preload="auto" aria-hidden="true"></audio>
+
+  <!-- ═══════════════════════════════════════════════════════════════
        GLOBAL BACKGROUND LAYER
-       Replace /public/assets/bg.png with your custom background art.
        ═══════════════════════════════════════════════════════════════ -->
   <div class="scene-bg" id="sceneBg"></div>
 
   <!-- ═══════════════════════════════════════════════════════════════
        DECORATIVE CHARACTER SPRITES
-       Positioned absolutely. Hidden until the main menu is active.
-       Swap sprite paths in ASSETS config (game-engine.js).
        ═══════════════════════════════════════════════════════════════ -->
   <div class="character character--left"  id="charLeft"  aria-hidden="true"></div>
   <div class="character character--right" id="charRight" aria-hidden="true"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       FLOATING MUSIC TOGGLE BUTTON
+       ═══════════════════════════════════════════════════════════════ -->
+  <button class="music-toggle" id="musicToggleBtn" aria-label="Toggle background music" title="Toggle music">
+    🎵
+  </button>
 
   <!-- ═══════════════════════════════════════════════════════════════
        SECTION 1: LOGIN SCREEN
        ═══════════════════════════════════════════════════════════════ -->
   <section class="screen" id="screen-login" role="main" aria-label="Login Screen">
 
-    <!-- ── Logo: sits above the form card, large and static ── -->
     <div class="login-layout">
 
       <div class="logo-wrap">
@@ -46,46 +55,42 @@
         />
       </div>
 
-      <!-- ── Translucent form card ── -->
       <div class="card login-card">
+        <form class="login-form" id="loginForm" novalidate>
+          <div class="field-group">
+            <label for="usernameInput" class="field-label">Username</label>
+            <input
+              type="text"
+              id="usernameInput"
+              class="field-input"
+              placeholder="Enter your username"
+              autocomplete="username"
+              required
+            />
+          </div>
 
-      <!-- Login Form -->
-      <form class="login-form" id="loginForm" novalidate>
-        <div class="field-group">
-          <label for="usernameInput" class="field-label">Username</label>
-          <input
-            type="text"
-            id="usernameInput"
-            class="field-input"
-            placeholder="Enter your username"
-            autocomplete="username"
-            required
-          />
-        </div>
+          <div class="field-group">
+            <label for="passwordInput" class="field-label">Password</label>
+            <input
+              type="password"
+              id="passwordInput"
+              class="field-input"
+              placeholder="Enter your password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
 
-        <div class="field-group">
-          <label for="passwordInput" class="field-label">Password</label>
-          <input
-            type="password"
-            id="passwordInput"
-            class="field-input"
-            placeholder="Enter your password"
-            autocomplete="current-password"
-            required
-          />
-        </div>
+          <p class="form-error" id="loginError" role="alert" aria-live="assertive"></p>
 
-        <!-- Error message area -->
-        <p class="form-error" id="loginError" role="alert" aria-live="assertive"></p>
+          <button type="submit" class="btn btn--primary btn--full" id="loginBtn">
+            <span class="btn-label">Yalla Beena! 🎮</span>
+            <span class="btn-loader" aria-hidden="true"></span>
+          </button>
+        </form>
+      </div>
 
-        <button type="submit" class="btn btn--primary btn--full" id="loginBtn">
-          <span class="btn-label">Yalla Beena! 🎮</span>
-          <span class="btn-loader" aria-hidden="true"></span>
-        </button>
-      </form>
-
-      </div><!-- /.card.login-card -->
-    </div><!-- /.login-layout -->
+    </div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════
@@ -94,7 +99,6 @@
   <section class="screen hidden" id="screen-menu" aria-label="Main Menu">
     <div class="card menu-card">
 
-      <!-- Header bar -->
       <header class="menu-header">
         <div class="menu-header__greet">
           <span class="greet-emoji">👋</span>
@@ -105,38 +109,33 @@
         </button>
       </header>
 
-      <!-- Today's Fazoora card -->
       <div class="daily-card" id="dailyCard">
-
         <div class="daily-card__badge">Today's Fazoora</div>
 
         <div class="daily-card__body">
-          <!-- Populated by JS -->
           <h2 class="daily-card__title" id="dailyTitle">Loading…</h2>
           <p  class="daily-card__desc"  id="dailyDesc">Please wait…</p>
 
-          <!-- Shown when NOT yet completed -->
+          <!-- Not yet played -->
           <div id="playSection">
             <button class="btn btn--accent btn--lg" id="playBtn" aria-label="Play today's game">
               ▶ Play Now!
             </button>
           </div>
 
-          <!-- Shown when ALREADY completed today -->
+          <!-- Already played / completed -->
           <div id="completedSection" class="hidden">
             <div class="completed-badge">
               <span class="completed-badge__icon">✅</span>
-              <span class="completed-badge__label">Completed Today!</span>
+              <span class="completed-badge__label">Already Played!</span>
             </div>
             <p class="completed-score">
               Your score: <strong id="completedScoreLabel">—</strong>
             </p>
           </div>
         </div>
-
       </div>
 
-      <!-- Navigation buttons -->
       <nav class="menu-nav" aria-label="Platform navigation">
         <button class="btn btn--secondary" id="scoreboardBtn">
           🏆 Scoreboard
@@ -147,12 +146,168 @@
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════
-       SECTION 3: GAME CANVAS
+       SECTION 3: STORY / IMAGE COLLAGE
+       Shown before the game explanation for baba-black-sheep.
+       Player browses 5 images with left/right arrows.
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen hidden" id="screen-story" aria-label="Story">
+    <div class="story-wrapper">
+
+      <div class="story-card">
+
+        <!-- Header -->
+        <div class="story-header">
+          <button class="btn btn--ghost btn--sm" id="storyBackBtn" aria-label="Back to menu">
+            ← Back
+          </button>
+          <h2 class="story-title">🐑 Baba Black Sheep!</h2>
+          <div style="width:64px"></div><!-- spacer to centre the title -->
+        </div>
+
+        <!-- Image stage with left / right arrows -->
+        <div class="story-stage">
+          <button
+            class="story-arrow story-arrow--left"
+            id="storyPrevBtn"
+            aria-label="Previous image"
+          >&#8592;</button>
+
+          <div class="story-img-wrap">
+            <img
+              class="story-img"
+              id="storyImg"
+              src=""
+              alt="Story"
+              draggable="false"
+            />
+          </div>
+
+          <button
+            class="story-arrow story-arrow--right"
+            id="storyNextBtn"
+            aria-label="Next image"
+          >&#8594;</button>
+        </div>
+
+        <!-- Dot indicators -->
+        <div class="story-dots" id="storyDots" role="tablist" aria-label="Image progress"></div>
+
+        <!-- "Let's Play!" appears only on the last image -->
+        <div class="story-footer">
+          <button
+            class="btn btn--accent btn--lg hidden"
+            id="storyToExplainBtn"
+            aria-label="Continue to game explanation"
+          >
+            Let's Play! →
+          </button>
+        </div>
+
+      </div><!-- /.story-card -->
+    </div><!-- /.story-wrapper -->
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 4: GAME EXPLANATION
+       Full instructions + one-attempt warning before gameplay.
+       ═══════════════════════════════════════════════════════════════ -->
+  <section class="screen hidden" id="screen-explain" aria-label="Game Explanation">
+    <div class="explain-wrapper">
+
+      <div class="card explain-card">
+
+        <!-- Header -->
+        <div class="explain-header">
+          <button class="btn btn--ghost btn--sm" id="explainBackBtn" aria-label="Back to story">
+            ← Back
+          </button>
+          <h2 class="explain-title">🐑 How to Play</h2>
+          <div style="width:64px"></div>
+        </div>
+
+        <!-- Instructions -->
+        <div class="explain-body">
+          <div class="explain-instructions">
+
+            <div class="explain-rule">
+              <span class="explain-rule__icon">🎯</span>
+              <div>
+                <strong>Your Mission</strong>
+                <p>A flock of sheep will flash on screen — some white, some black. Press
+                   <kbd>SPACE</kbd> every time you see a <strong>black sheep</strong>!</p>
+              </div>
+            </div>
+
+            <div class="explain-rule">
+              <span class="explain-rule__icon">✅</span>
+              <div>
+                <strong>Hit a black sheep</strong>
+                <p>Press SPACE when a black sheep is showing → <span class="score-plus">+100 points</span></p>
+              </div>
+            </div>
+
+            <div class="explain-rule">
+              <span class="explain-rule__icon">❌</span>
+              <div>
+                <strong>Wrong press</strong>
+                <p>Press SPACE on a white sheep → <span class="score-minus">−100 points</span>
+                   <em>(score can't go below 0)</em></p>
+              </div>
+            </div>
+
+            <div class="explain-rule">
+              <span class="explain-rule__icon">⏱️</span>
+              <div>
+                <strong>60 seconds, 15 black sheep</strong>
+                <p>The game lasts exactly one minute. Exactly 15 black sheep will appear.
+                   The sheep flash <em>faster</em> as time goes on — stay sharp!</p>
+              </div>
+            </div>
+
+            <div class="explain-rule">
+              <span class="explain-rule__icon">🔒</span>
+              <div>
+                <strong>One attempt only</strong>
+                <p>Once you start you cannot replay this fazoora. Make it count!</p>
+              </div>
+            </div>
+
+          </div><!-- /.explain-instructions -->
+        </div><!-- /.explain-body -->
+
+        <!-- Start button -->
+        <div class="explain-actions">
+          <button class="btn btn--accent btn--lg btn--full" id="explainStartBtn">
+            ▶ Start Game
+          </button>
+        </div>
+
+        <!-- One-attempt warning (hidden until Start is pressed) -->
+        <div class="explain-warning hidden" id="explainWarning" role="alert">
+          <div class="warning-box">
+            <span class="warning-icon">⚠️</span>
+            <p class="warning-text">
+              <strong>Are you sure?</strong><br/>
+              This is your <strong>ONLY attempt</strong> at this fazoora.
+              Once you press "I'm Ready" your turn begins and cannot be taken back.
+            </p>
+            <div class="warning-actions">
+              <button class="btn btn--ghost" id="explainCancelBtn">Cancel</button>
+              <button class="btn btn--primary" id="explainReadyBtn">I'm Ready! 🚀</button>
+            </div>
+          </div>
+        </div>
+
+      </div><!-- /.explain-card -->
+    </div><!-- /.explain-wrapper -->
+  </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 5: GAME CANVAS
        ═══════════════════════════════════════════════════════════════ -->
   <section class="screen hidden" id="screen-game" aria-label="Game Canvas">
     <div class="game-shell">
 
-      <!-- HUD bar above the canvas -->
       <div class="game-hud">
         <button class="btn btn--ghost btn--sm" id="quitGameBtn" aria-label="Quit game and return to menu">
           ← Quit
@@ -161,13 +316,11 @@
           <span class="hud-title" id="hudTitle">Game</span>
         </div>
         <div class="hud-info">
-          <!-- Dynamic HUD items injected by the game engine -->
           <span class="hud-item" id="hudScore">Score: 0</span>
           <span class="hud-item" id="hudTimer">⏱ —</span>
         </div>
       </div>
 
-      <!-- The canvas: games draw onto this element -->
       <canvas
         id="gameCanvas"
         class="game-canvas"
@@ -176,7 +329,6 @@
         aria-label="Game area"
       ></canvas>
 
-      <!-- Overlay: shown at game start (countdown), end, or on error -->
       <div class="game-overlay hidden" id="gameOverlay" role="dialog" aria-modal="true" aria-live="assertive">
         <div class="game-overlay__box">
           <div class="overlay-icon" id="overlayIcon">🎉</div>
@@ -193,7 +345,7 @@
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════
-       SECTION 4: SCOREBOARD
+       SECTION 6: SCOREBOARD
        ═══════════════════════════════════════════════════════════════ -->
   <section class="screen hidden" id="screen-scoreboard" aria-label="Scoreboard">
     <div class="card scoreboard-card">
@@ -205,33 +357,31 @@
         <h2 class="scoreboard-title">🏆 Hall of Fame</h2>
       </div>
 
-      <!-- Loading state -->
       <div class="scoreboard-loading" id="scoreboardLoading">
         <div class="spinner" aria-label="Loading…"></div>
         <p>Fetching scores…</p>
       </div>
 
-      <!-- Populated by JS -->
       <ol class="scoreboard-list" id="scoreboardList" aria-label="Player rankings">
-        <!-- List items injected dynamically -->
       </ol>
 
     </div>
   </section>
 
   <!-- ═══════════════════════════════════════════════════════════════
-       GLOBAL TOAST NOTIFICATION
+       GLOBAL TOAST
        ═══════════════════════════════════════════════════════════════ -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
 
   <!-- ═══════════════════════════════════════════════════════════════
-       SCRIPTS
-       Load order matters: api → game-engine → day scripts → main
+       SCRIPTS  (load order matters)
+       api → music → games → game-engine → main
        ═══════════════════════════════════════════════════════════════ -->
   <script src="/js/api.js"></script>
-  <script src="/games/day1.js"></script>
-  <!-- Add future game scripts here, e.g.: -->
-  <!-- <script src="/games/day2.js"></script> -->
+  <script src="/js/music.js"></script>
+  <script src="/js/games/day1.js"></script>
+  <script src="/js/games/baba-black-sheep.js"></script>
+  <!-- Add future game scripts here -->
   <script src="/js/game-engine.js"></script>
   <script src="/js/main.js"></script>
 

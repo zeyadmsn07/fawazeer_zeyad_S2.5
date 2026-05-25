@@ -48,17 +48,12 @@ const FazooraAPI = (() => {
   async function login(username, password) {
     return _request('/api/login', {
       method: 'POST',
-      body: JSON.stringify({
-        username,
-        password
-      }),
+      body: JSON.stringify({ username, password }),
     });
   }
 
   async function logout() {
-    return _request('/api/logout', {
-      method: 'POST'
-    });
+    return _request('/api/logout', { method: 'POST' });
   }
 
   async function getMe() {
@@ -71,13 +66,17 @@ const FazooraAPI = (() => {
       ) {
         return null;
       }
-
       throw err;
     }
   }
 
   async function getDailyGame() {
     return _request('/api/daily');
+  }
+
+  // Called when the player confirms they are ready to play (one-attempt lock)
+  async function markPlayed() {
+    return _request('/api/mark-played', { method: 'POST' });
   }
 
   async function submitScore(score) {
@@ -96,6 +95,7 @@ const FazooraAPI = (() => {
     logout,
     getMe,
     getDailyGame,
+    markPlayed,
     submitScore,
     getScoreboard,
   };

@@ -18,21 +18,34 @@ const USERS = [
   { id: 7,  username: 'Mazen',   password: '12345*',  displayName: 'Mazen'   },
   { id: 8,  username: 'Abdo',    password: '12345*',  displayName: 'Abdo'    },
 ];
+
+// ─── Date-specific game overrides ────────────────────────────────────────────
+// Games scheduled for a specific calendar date take priority over the rotation.
+const DATE_OVERRIDES = {
+  '2026-05-26': {
+    gameId:      'baba-black-sheep',
+    title:       'Baba Black Sheep!',
+    description: 'Press SPACE every time a black sheep appears — but don\'t press it on the white ones!',
+  },
+};
  
 const DAILY_SCHEDULE = [
-  { gameId: 'day1', title: 'The Speedy Box',   description: 'Click the moving box before time runs out!' },
+  { gameId: 'day1', title: 'The Speedy Box', description: 'Click the moving box before time runs out!' },
 ];
  
 function readDb() {
   if (!fs.existsSync(DB_PATH)) {
-    const empty = { scores: {} };
+    const empty = { scores: {}, playedStates: {} };
     fs.writeFileSync(DB_PATH, JSON.stringify(empty, null, 2), 'utf8');
     return empty;
   }
   try {
-    return JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    const parsed = JSON.parse(fs.readFileSync(DB_PATH, 'utf8'));
+    // Ensure playedStates key always exists
+    if (!parsed.playedStates) parsed.playedStates = {};
+    return parsed;
   } catch {
-    const empty = { scores: {} };
+    const empty = { scores: {}, playedStates: {} };
     fs.writeFileSync(DB_PATH, JSON.stringify(empty, null, 2), 'utf8');
     return empty;
   }
@@ -47,6 +60,14 @@ function todayString() {
 }
  
 function getTodaysGame() {
+  const today = todayString();
+
+  // Date-specific override takes priority
+  if (DATE_OVERRIDES[today]) {
+    return { ...DATE_OVERRIDES[today], dateString: today };
+  }
+
+  // Fall back to day-of-year rotation
   const now      = new Date();
   const start    = new Date(now.getFullYear(), 0, 0);
   const diff     = now - start;
@@ -55,7 +76,7 @@ function getTodaysGame() {
   const idx      = (dayOfYear - 1) % DAILY_SCHEDULE.length;
   return {
     ...DAILY_SCHEDULE[idx],
-    dateString: todayString(),
+    dateString: today,
   };
 }
  
@@ -80,6 +101,8 @@ function requireAuth(req, res, next) {
   next();
 }
  
+// ─── Auth endpoints ───────────────────────────────────────────────────────────
+
 app.post('/api/login', (req, res) => {
   const { username, password } = req.body;
   if (!username || !password) {
@@ -108,6 +131,8 @@ app.post('/api/logout', (req, res) => {
 app.get('/api/me', requireAuth, (req, res) => {
   res.json({ user: req.session.user });
 });
+
+// ─── Daily game endpoint ──────────────────────────────────────────────────────
  
 app.get('/api/daily', requireAuth, (req, res) => {
   const game      = getTodaysGame();
@@ -117,14 +142,35 @@ app.get('/api/daily', requireAuth, (req, res) => {
  
   const userScores = db.scores[userId] || {};
   const todayEntry = userScores[todayKey] || null;
+
+  // Check if the user has already started today's game (even if they didn't finish)
+  const played = !!(db.playedStates[userId] && db.playedStates[userId][todayKey]);
  
   res.json({
     game,
     completed: !!todayEntry,
+    played,
     result: todayEntry,
   });
 });
+
+// ─── Mark played (call when player presses "I'm Ready") ──────────────────────
+
+app.post('/api/mark-played', requireAuth, (req, res) => {
+  const game     = getTodaysGame();
+  const db       = readDb();
+  const userId   = String(req.session.user.id);
+  const todayKey = game.dateString;
+
+  if (!db.playedStates[userId]) db.playedStates[userId] = {};
+  db.playedStates[userId][todayKey] = true;
+
+  writeDb(db);
+  return res.json({ success: true });
+});
  
+// ─── Score endpoint ───────────────────────────────────────────────────────────
+
 app.post('/api/score', requireAuth, (req, res) => {
   const { score } = req.body;
  
@@ -156,12 +202,11 @@ app.post('/api/score', requireAuth, (req, res) => {
     saved:    db.scores[userId][todayKey],
   });
 });
+
+// ─── Scoreboard ───────────────────────────────────────────────────────────────
  
 app.get('/api/scoreboard', requireAuth, (req, res) => {
   const db = readDb();
- 
-  const userMap = {};
-  USERS.forEach(u => { userMap[u.id] = { displayName: u.displayName, username: u.username }; });
  
   const board = USERS.map(user => {
     const uid        = String(user.id);
