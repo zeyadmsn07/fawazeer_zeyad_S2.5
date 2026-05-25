@@ -1,35 +1,39 @@
 const ASSETS = {
-  background: '/assets/bg.png',
-  logo: '/assets/menu/logo.png',
+  images: {
+    background: '/assets/images/back.png',
+    logo: '/assets/images/logo.png',
+  },
 
-  charLeft: '/assets/char-left.png',
-  charRight: '/assets/char-right.png',
+  characters: {
+    left: '/assets/characters/char1.png',
+    right: '/assets/characters/char2.png',
+  },
 
-  btnPlay: '/assets/btn-play.png',
-  btnScoreboard: '/assets/btn-scoreboard.png',
+  ui: {
+    btnPlay: '/assets/ui/btn-play.png',
+    btnScoreboard: '/assets/ui/btn-scoreboard.png',
+    btnLogout: '/assets/ui/btn-logout.png',
+    panelFrame: '/assets/ui/panel-frame.png',
+    starFull: '/assets/ui/star-full.png',
+    starEmpty: '/assets/ui/star-empty.png',
+  },
 
   day1: {
-    boxSprite: '/assets/games/day1/box.png',
-    bgMusic: '/assets/games/day1/music.mp3',
-    sfxHit: '/assets/games/day1/hit.wav',
-    sfxMiss: '/assets/games/day1/miss.wav',
+    boxSprite: '/assets/images/day1-box.png',
+    bgMusic: '/assets/images/day1-music.mp3',
+    sfxHit: '/assets/images/day1-hit.wav',
+    sfxMiss: '/assets/images/day1-miss.wav',
   },
 };
 
 const GameEngine = (() => {
-
   const _registry = {};
 
   let _activeGame = null;
   let _rafHandle = null;
   let _sessionStart = null;
 
-  let _canvas;
-  let _ctx;
-  let _overlay;
-  let _hudScore;
-  let _hudTimer;
-  let _hudTitle;
+  let _canvas, _ctx, _overlay, _hudScore, _hudTimer, _hudTitle;
 
   let _onGameEnd = null;
 
@@ -42,13 +46,9 @@ const GameEngine = (() => {
     _hudTitle = document.getElementById('hudTitle');
 
     _resizeCanvas();
-
     window.addEventListener('resize', _resizeCanvas);
 
-    console.log(
-      '[GameEngine] Initialized. Registered games:',
-      Object.keys(_registry)
-    );
+    console.log('[GameEngine] Initialized. Registered games:', Object.keys(_registry));
   }
 
   function _resizeCanvas() {
@@ -62,9 +62,7 @@ const GameEngine = (() => {
 
   function register(gameId, module) {
     if (_registry[gameId]) {
-      console.warn(
-        `[GameEngine] Game "${gameId}" already registered; overwriting.`
-      );
+      console.warn(`[GameEngine] Game "${gameId}" already registered; overwriting.`);
     }
 
     _registry[gameId] = module;
@@ -76,14 +74,8 @@ const GameEngine = (() => {
     const module = _registry[gameId];
 
     if (!module) {
-      console.error(
-        `[GameEngine] Game "${gameId}" not found in registry.`
-      );
-
-      _showError(
-        `Could not load game "${gameId}". Please refresh.`
-      );
-
+      console.error(`[GameEngine] Game "${gameId}" not found in registry.`);
+      _showError(`Could not load game "${gameId}". Please refresh.`);
       return;
     }
 
@@ -93,32 +85,19 @@ const GameEngine = (() => {
     _onGameEnd = onEnd;
     _sessionStart = performance.now();
 
-    if (_hudTitle) {
-      _hudTitle.textContent = gameTitle;
-    }
-
-    if (_hudScore) {
-      _hudScore.textContent = 'Score: 0';
-    }
-
-    if (_hudTimer) {
-      _hudTimer.textContent = '⏱ —';
-    }
+    if (_hudTitle) _hudTitle.textContent = gameTitle;
+    if (_hudScore) _hudScore.textContent = 'Score: 0';
+    if (_hudTimer) _hudTimer.textContent = '⏱ —';
 
     _hideOverlay();
 
     _resizeCanvas();
 
-    module.start(
-      _canvas,
-      _ctx,
-      ASSETS[gameId] || {},
-      {
-        updateScore: _updateHudScore,
-        updateTimer: _updateHudTimer,
-        endGame: _handleGameEnd,
-      }
-    );
+    module.start(_canvas, _ctx, ASSETS[gameId] || {}, {
+      updateScore: _updateHudScore,
+      updateTimer: _updateHudTimer,
+      endGame: _handleGameEnd,
+    });
 
     _startLoop();
 
@@ -128,10 +107,7 @@ const GameEngine = (() => {
   function abortGame() {
     _stopLoop();
 
-    if (
-      _activeGame &&
-      typeof _activeGame.destroy === 'function'
-    ) {
+    if (_activeGame && typeof _activeGame.destroy === 'function') {
       _activeGame.destroy();
     }
 
@@ -148,11 +124,7 @@ const GameEngine = (() => {
 
       const elapsed = timestamp - _sessionStart;
 
-      _activeGame.update(
-        elapsed,
-        _ctx,
-        _canvas
-      );
+      _activeGame.update(elapsed, _ctx, _canvas);
 
       _rafHandle = requestAnimationFrame(tick);
     };
@@ -169,12 +141,7 @@ const GameEngine = (() => {
 
   function _clearCanvas() {
     if (_ctx && _canvas) {
-      _ctx.clearRect(
-        0,
-        0,
-        _canvas.width,
-        _canvas.height
-      );
+      _ctx.clearRect(0, 0, _canvas.width, _canvas.height);
     }
   }
 
@@ -186,28 +153,22 @@ const GameEngine = (() => {
 
   function _updateHudTimer(seconds) {
     if (_hudTimer) {
-      _hudTimer.textContent =
-        seconds >= 0
-          ? `⏱ ${seconds}s`
-          : '⏱ —';
+      _hudTimer.textContent = seconds >= 0
+        ? `⏱ ${seconds}s`
+        : '⏱ —';
     }
   }
 
   function _handleGameEnd(finalScore, meta = {}) {
     _stopLoop();
 
-    if (
-      _activeGame &&
-      typeof _activeGame.destroy === 'function'
-    ) {
+    if (_activeGame && typeof _activeGame.destroy === 'function') {
       _activeGame.destroy();
     }
 
     _activeGame = null;
 
-    console.log(
-      `[GameEngine] Game ended. Final score: ${finalScore}`
-    );
+    console.log(`[GameEngine] Game ended. Final score: ${finalScore}`);
 
     if (typeof _onGameEnd === 'function') {
       _onGameEnd(finalScore);
@@ -224,9 +185,7 @@ const GameEngine = (() => {
     if (!_overlay) return;
 
     document.getElementById('overlayIcon').textContent = '❌';
-
     document.getElementById('overlayTitle').textContent = 'Oops!';
-
     document.getElementById('overlayBody').textContent = message;
 
     _overlay.classList.remove('hidden');
@@ -236,7 +195,6 @@ const GameEngine = (() => {
     init,
     register,
     startGame,
-    abortGame
+    abortGame,
   };
-
 })();

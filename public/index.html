@@ -4,30 +4,52 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Fazoora — Daily Puzzle Platform</title>
- 
+
+  <!-- Google Fonts: Playful display font + clean body font -->
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fredoka+One&family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet" />
- 
+
   <link rel="stylesheet" href="/css/style.css" />
 </head>
 <body>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       GLOBAL BACKGROUND LAYER
+       Replace /public/assets/bg.png with your custom background art.
+       ═══════════════════════════════════════════════════════════════ -->
   <div class="scene-bg" id="sceneBg"></div>
- 
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       DECORATIVE CHARACTER SPRITES
+       Positioned absolutely. Hidden until the main menu is active.
+       Swap sprite paths in ASSETS config (game-engine.js).
+       ═══════════════════════════════════════════════════════════════ -->
   <div class="character character--left"  id="charLeft"  aria-hidden="true"></div>
   <div class="character character--right" id="charRight" aria-hidden="true"></div>
- 
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 1: LOGIN SCREEN
+       ═══════════════════════════════════════════════════════════════ -->
   <section class="screen" id="screen-login" role="main" aria-label="Login Screen">
-    <div class="card login-card">
- 
+
+    <!-- ── Logo: sits above the form card, large and static ── -->
+    <div class="login-layout">
+
       <div class="logo-wrap">
-        <div class="logo-placeholder" aria-label="Fazoora Logo">
-          <span class="logo-icon">🧩</span>
-          <h1 class="logo-text">Fazoora</h1>
-          <p class="logo-tagline">Your daily puzzle awaits!</p>
-        </div>
+        <img
+          src="/assets/images/logo.png"
+          alt="Fazoora"
+          class="logo-img"
+          id="logoImg"
+          draggable="false"
+        />
       </div>
- 
+
+      <!-- ── Translucent form card ── -->
+      <div class="card login-card">
+
+      <!-- Login Form -->
       <form class="login-form" id="loginForm" novalidate>
         <div class="field-group">
           <label for="usernameInput" class="field-label">Username</label>
@@ -40,7 +62,7 @@
             required
           />
         </div>
- 
+
         <div class="field-group">
           <label for="passwordInput" class="field-label">Password</label>
           <input
@@ -52,21 +74,27 @@
             required
           />
         </div>
- 
+
+        <!-- Error message area -->
         <p class="form-error" id="loginError" role="alert" aria-live="assertive"></p>
- 
+
         <button type="submit" class="btn btn--primary btn--full" id="loginBtn">
-          <span class="btn-label">Let's Play! 🎮</span>
+          <span class="btn-label">Yalla Beena! 🎮</span>
           <span class="btn-loader" aria-hidden="true"></span>
         </button>
       </form>
- 
-    </div>
+
+      </div><!-- /.card.login-card -->
+    </div><!-- /.login-layout -->
   </section>
- 
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 2: MAIN MENU / LOBBY
+       ═══════════════════════════════════════════════════════════════ -->
   <section class="screen hidden" id="screen-menu" aria-label="Main Menu">
     <div class="card menu-card">
- 
+
+      <!-- Header bar -->
       <header class="menu-header">
         <div class="menu-header__greet">
           <span class="greet-emoji">👋</span>
@@ -76,21 +104,25 @@
           Logout
         </button>
       </header>
- 
+
+      <!-- Today's Fazoora card -->
       <div class="daily-card" id="dailyCard">
- 
+
         <div class="daily-card__badge">Today's Fazoora</div>
- 
+
         <div class="daily-card__body">
+          <!-- Populated by JS -->
           <h2 class="daily-card__title" id="dailyTitle">Loading…</h2>
           <p  class="daily-card__desc"  id="dailyDesc">Please wait…</p>
- 
+
+          <!-- Shown when NOT yet completed -->
           <div id="playSection">
             <button class="btn btn--accent btn--lg" id="playBtn" aria-label="Play today's game">
               ▶ Play Now!
             </button>
           </div>
- 
+
+          <!-- Shown when ALREADY completed today -->
           <div id="completedSection" class="hidden">
             <div class="completed-badge">
               <span class="completed-badge__icon">✅</span>
@@ -101,21 +133,26 @@
             </p>
           </div>
         </div>
- 
+
       </div>
- 
+
+      <!-- Navigation buttons -->
       <nav class="menu-nav" aria-label="Platform navigation">
         <button class="btn btn--secondary" id="scoreboardBtn">
           🏆 Scoreboard
         </button>
       </nav>
- 
+
     </div>
   </section>
- 
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 3: GAME CANVAS
+       ═══════════════════════════════════════════════════════════════ -->
   <section class="screen hidden" id="screen-game" aria-label="Game Canvas">
     <div class="game-shell">
- 
+
+      <!-- HUD bar above the canvas -->
       <div class="game-hud">
         <button class="btn btn--ghost btn--sm" id="quitGameBtn" aria-label="Quit game and return to menu">
           ← Quit
@@ -124,11 +161,13 @@
           <span class="hud-title" id="hudTitle">Game</span>
         </div>
         <div class="hud-info">
+          <!-- Dynamic HUD items injected by the game engine -->
           <span class="hud-item" id="hudScore">Score: 0</span>
           <span class="hud-item" id="hudTimer">⏱ —</span>
         </div>
       </div>
- 
+
+      <!-- The canvas: games draw onto this element -->
       <canvas
         id="gameCanvas"
         class="game-canvas"
@@ -136,7 +175,8 @@
         height="500"
         aria-label="Game area"
       ></canvas>
- 
+
+      <!-- Overlay: shown at game start (countdown), end, or on error -->
       <div class="game-overlay hidden" id="gameOverlay" role="dialog" aria-modal="true" aria-live="assertive">
         <div class="game-overlay__box">
           <div class="overlay-icon" id="overlayIcon">🎉</div>
@@ -148,34 +188,52 @@
           </div>
         </div>
       </div>
- 
+
     </div>
   </section>
- 
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SECTION 4: SCOREBOARD
+       ═══════════════════════════════════════════════════════════════ -->
   <section class="screen hidden" id="screen-scoreboard" aria-label="Scoreboard">
     <div class="card scoreboard-card">
- 
+
       <div class="scoreboard-header">
         <button class="btn btn--ghost btn--sm" id="backFromScoreboardBtn" aria-label="Back to menu">
           ← Back
         </button>
         <h2 class="scoreboard-title">🏆 Hall of Fame</h2>
       </div>
- 
+
+      <!-- Loading state -->
       <div class="scoreboard-loading" id="scoreboardLoading">
         <div class="spinner" aria-label="Loading…"></div>
         <p>Fetching scores…</p>
       </div>
+
+      <!-- Populated by JS -->
       <ol class="scoreboard-list" id="scoreboardList" aria-label="Player rankings">
+        <!-- List items injected dynamically -->
       </ol>
- 
+
     </div>
   </section>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       GLOBAL TOAST NOTIFICATION
+       ═══════════════════════════════════════════════════════════════ -->
   <div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+  <!-- ═══════════════════════════════════════════════════════════════
+       SCRIPTS
+       Load order matters: api → game-engine → day scripts → main
+       ═══════════════════════════════════════════════════════════════ -->
   <script src="/js/api.js"></script>
   <script src="/games/day1.js"></script>
+  <!-- Add future game scripts here, e.g.: -->
+  <!-- <script src="/games/day2.js"></script> -->
   <script src="/js/game-engine.js"></script>
   <script src="/js/main.js"></script>
- 
+
 </body>
 </html>
