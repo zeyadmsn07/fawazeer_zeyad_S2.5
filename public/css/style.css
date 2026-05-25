@@ -125,7 +125,7 @@ body {
 
 .character {
   position: fixed;
-  bottom: -270px;          /* ← how much is hidden below the screen edge */
+  bottom: -250px;          /* ← how much is hidden below the screen edge */
   width:  900px;           /* ← character width  */
   height: 1350px;           /* ← character height */
   background-size: contain;
@@ -345,20 +345,25 @@ body {
 
 /* ─── LOGIN SCREEN ───────────────────────────────────────────────────────────── */
 
-/*
- * .login-layout stacks two things vertically, centred on screen:
- *   1. .logo-wrap  — the large static logo floating above
- *   2. .login-card — the translucent form widget below
- */
+/* Forces the login viewport to perfectly center its items in regular and full screen */
+#screen-login {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+/* Stacks logo wrap and form widget seamlessly centered */
 .login-layout {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 0;                  /* logo and card touch; adjust if you want a gap */
+  gap: 0;                  
   width: 100%;
   max-width: 480px;
   position: relative;
   z-index: 2;
+  margin: auto 0; /* Stabilizes structural balance */
 }
 
 /* Logo block: above the card, no background, just the image */
@@ -367,7 +372,6 @@ body {
   flex-direction: column;
   align-items: center;
   gap: 0.3rem;
-  /* Slight overlap pushes the logo into the card top edge for a layered look */
   margin-bottom: -10px;
   z-index: 3;
   position: relative;
@@ -376,13 +380,11 @@ body {
 /* Logo image — large, static, glowing */
 .logo-img {
   width: auto;
-  max-width: 640px;        /* ← CHANGE THIS to resize the logo */
-  max-height: 360px;       /* ← CHANGE THIS to resize the logo height */
+  max-width: 640px;        
+  max-height: 360px;       
   object-fit: contain;
   display: block;
   margin: 0 auto;
-  /* No animation — static as requested */
-  /* Teal glow drop-shadow */
   filter: drop-shadow(0 6px 24px rgba(14,165,160,0.45))
           drop-shadow(0 2px 6px rgba(0,0,0,0.3));
   user-select: none;
@@ -401,25 +403,23 @@ body {
 /* The form card: translucent frosted-glass panel */
 .login-card {
   text-align: center;
-  /* Frosted glass — slightly translucent white over the scene */
-  background: rgba(255, 255, 255, 0.34) !important;   /* ← CHANGE opacity here (0.0–1.0) */
+  background: rgba(255, 255, 255, 0.34) !important;   
   backdrop-filter: blur(18px);
   -webkit-backdrop-filter: blur(18px);
   border: 1.5px solid rgba(255, 255, 255, 0.22);
   box-shadow:
     0 8px 40px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255,255,255,0.25);
-  /* Override the default white card ::before stripe with teal-cyan */
   overflow: hidden;
   padding-top: 2rem;
+  width: 100%;
 }
 
-/* Override the top colour stripe on the card to teal-cyan */
+/* Override top color stripe on the card */
 .login-card::before {
   background: linear-gradient(90deg, #0ea5a0, #06b6d4, #10b981) !important;
 }
 
-/* Inside the translucent card, labels and text need to be light */
 .login-card .field-label {
   color: rgba(27, 27, 27, 0.7);
 }
@@ -442,7 +442,6 @@ body {
 
 /* Form fields */
 .login-form { display: flex; flex-direction: column; gap: 1.1rem; }
-
 .field-group { display: flex; flex-direction: column; gap: 0.35rem; text-align: left; }
 
 .field-label {
@@ -483,14 +482,28 @@ body {
   text-align: center;
 }
 
+
 /* ─── MAIN MENU ──────────────────────────────────────────────────────────────── */
-.menu-card { max-width: 520px; }
+
+/* Centered and larger lobby view setup */
+#screen-menu {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2rem 1rem;
+}
+
+.menu-card { 
+  width: 100%;
+  max-width: 760px; /* Extended widescreen boundaries */
+  transition: max-width var(--transition);
+}
 
 .menu-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
-  margin-bottom: 1rem;
+  margin-bottom: 1.5rem;
   font-weight: 700;
   color: var(--clr-text-muted);
 }
@@ -504,11 +517,11 @@ body {
 .menu-header__greet strong { color: var(--clr-primary); font-size: 1.1rem; }
 .greet-emoji { font-size: 1.3rem; }
 
-/* Daily game card */
+/* Daily game card layout adjustments */
 .daily-card {
   background: linear-gradient(135deg, #ede9fe, #dbeafe);
   border-radius: var(--radius-md);
-  padding: 1.5rem;
+  padding: 2rem;
   margin-bottom: 1.5rem;
   border: 2.5px solid var(--clr-card-border);
   position: relative;
@@ -530,16 +543,16 @@ body {
 
 .daily-card__title {
   font-family: var(--font-display);
-  font-size: 1.6rem;
+  font-size: 1.8rem;
   color: var(--clr-text);
-  margin-bottom: 0.4rem;
+  margin-bottom: 0.5rem;
 }
 
 .daily-card__desc {
   color: var(--clr-text-muted);
-  font-size: 0.92rem;
+  font-size: 0.95rem;
   font-weight: 600;
-  margin-bottom: 1.25rem;
+  margin-bottom: 1.5rem;
 }
 
 .completed-badge {
@@ -567,7 +580,6 @@ body {
   font-size: 1.1em;
 }
 
-/* Menu navigation */
 .menu-nav {
   display: flex;
   gap: 0.75rem;
@@ -575,6 +587,68 @@ body {
 }
 .menu-nav .btn { flex: 1; min-width: 140px; }
 
+/* Keep characters cleanly hidden when main menu is active */
+.character.menu-mode {
+  display: none !important;
+  opacity: 0 !important;
+  visibility: hidden !important;
+}
+
+/* Static bottom-right logo: slightly larger setup (220px wide) */
+#screen-menu::after {
+  content: '';
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 220px; /* Slightly upscaled from 160px */
+  height: 140px;
+  background-image: url('/assets/images/logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: bottom right;
+  z-index: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 12px rgba(14,165,160,0.3));
+}
+
+/* Alternative explicit img class if applicable */
+.menu-logo-static {
+  position: fixed;
+  bottom: 2rem;
+  right: 2rem;
+  width: 220px; 
+  height: auto;
+  z-index: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 4px 12px rgba(14,165,160,0.3));
+}
+
+
+/* ─── EXTRA VIEWPORT RESPONSIVENESS ─────────────────────────────────────────── */
+
+/* Safe fallback: If viewport height is too short, center flex falls back gracefully to prevent clipping */
+@media (max-height: 680px) {
+  #screen-login {
+    align-items: flex-start;
+    padding-top: 2rem;
+  }
+}
+
+@media (max-width: 640px) {
+  #screen-menu {
+    align-items: flex-start;
+    padding-top: 4rem;
+  }
+  .menu-card {
+    max-width: 100%;
+  }
+  #screen-menu::after, .menu-logo-static {
+    width: 130px; /* Scales down elegantly on compact mobile viewports */
+    bottom: 1rem;
+    right: 1rem;
+    opacity: 0.7;
+  }
+}
 /* ─── GAME SCREEN ────────────────────────────────────────────────────────────── */
 #screen-game {
   padding: 0;
