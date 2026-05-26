@@ -46,11 +46,11 @@ document.addEventListener('DOMContentLoaded', async () => {
   const explainReadyBtn   = document.getElementById('explainReadyBtn');
 
   // ── Game / HUD ─────────────────────────────────────────────────────────────
-  const quitGameBtn       = document.getElementById('quitGameBtn');
-  const gameOverlay       = document.getElementById('gameOverlay');
-  const overlayIcon       = document.getElementById('overlayIcon');
-  const overlayTitle      = document.getElementById('overlayTitle');
-  const overlayBody       = document.getElementById('overlayBody');
+  const quitGameBtn         = document.getElementById('quitGameBtn');
+  const gameOverlay         = document.getElementById('gameOverlay');
+  const overlayIcon         = document.getElementById('overlayIcon');
+  const overlayTitle        = document.getElementById('overlayTitle');
+  const overlayBody         = document.getElementById('overlayBody');
   const overlayPrimaryBtn   = document.getElementById('overlayPrimaryBtn');
   const overlaySecondaryBtn = document.getElementById('overlaySecondaryBtn');
 
@@ -75,14 +75,17 @@ document.addEventListener('DOMContentLoaded', async () => {
   let _pendingScore = null;
   let _toastTimer   = null;
 
-  // Story carousel state
+  // ── Story carousel state ───────────────────────────────────────────────────
   let _storyIndex = 0;
+
+  // ▸ img6 added here — the only change needed to wire in the sixth story image
   const STORY_IMAGES = [
     '/assets/img/img1.png',
     '/assets/img/img2.png',
     '/assets/img/img3.png',
     '/assets/img/img4.png',
     '/assets/img/img5.png',
+    '/assets/img/img6.png',   // ← new
   ];
 
   // ═══════════════════════════════════════════════════════════════════════════
@@ -93,13 +96,13 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (el) el.classList.toggle('hidden', key !== name);
     });
 
-    const onLogin  = name === 'login';
-    const onMenu   = name === 'menu';
+    const onLogin   = name === 'login';
+    const onMenu    = name === 'menu';
     const showChars = onLogin || onMenu;
 
-    charLeft.classList.toggle('visible',   showChars);
-    charRight.classList.toggle('visible',  showChars);
-    charLeft.classList.toggle('menu-mode', onMenu);
+    charLeft.classList.toggle('visible',    showChars);
+    charRight.classList.toggle('visible',   showChars);
+    charLeft.classList.toggle('menu-mode',  onMenu);
     charRight.classList.toggle('menu-mode', onMenu);
   }
 
@@ -133,12 +136,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       const logoEl = document.getElementById('logoImg');
       if (logoEl && ASSETS.images?.logo) {
-        logoEl.src    = ASSETS.images.logo;
+        logoEl.src     = ASSETS.images.logo;
         logoEl.onerror = () => { logoEl.style.display = 'none'; };
       }
     }
 
-    // ── Background music ───────────────────────────────────────────────────
+    // ── Background music (default_track, lobby volume 0.35) ────────────────
     if (typeof MusicManager !== 'undefined') {
       const trackSrc = (typeof ASSETS !== 'undefined' && ASSETS.sounds?.defaultTrack)
         ? ASSETS.sounds.defaultTrack
@@ -150,7 +153,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     // ── Game engine ────────────────────────────────────────────────────────
     GameEngine.init();
 
-    // ── Story dots ─────────────────────────────────────────────────────────
+    // ── Story dots (built dynamically from STORY_IMAGES array) ─────────────
     _buildStoryDots();
 
     // ── Auth check ─────────────────────────────────────────────────────────
@@ -243,6 +246,12 @@ document.addEventListener('DOMContentLoaded', async () => {
     displayNameLabel.textContent = _currentUser.displayName || _currentUser.username;
     showScreen('menu');
 
+    // Restore lobby music whenever the player returns to the menu
+    if (typeof MusicManager !== 'undefined') {
+      MusicManager.setVolume(0.35);
+      MusicManager.restoreDefault();
+    }
+
     try {
       _dailyData = await FazooraAPI.getDailyGame();
       _renderDailyCard(_dailyData);
@@ -256,7 +265,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     dailyTitle.textContent = data.game.title       || 'Today\'s Fazoora';
     dailyDesc.textContent  = data.game.description || '';
 
-    // A user is locked out if they've already played OR already submitted a score
     const locked = data.completed || data.played;
 
     if (locked) {
@@ -265,9 +273,6 @@ document.addEventListener('DOMContentLoaded', async () => {
 
       if (data.completed && data.result) {
         completedScoreLbl.textContent = data.result.score;
-      } else if (data.played) {
-        // Marked played but no score (e.g. quit mid-game)
-        completedScoreLbl.textContent = '—';
       } else {
         completedScoreLbl.textContent = '—';
       }
@@ -279,8 +284,8 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   logoutBtn.addEventListener('click', async () => {
     try { await FazooraAPI.logout(); } catch {}
-    _currentUser = null;
-    _dailyData   = null;
+    _currentUser  = null;
+    _dailyData    = null;
     _pendingScore = null;
     showScreen('login');
     showToast('See you next time! 👋');
@@ -293,10 +298,8 @@ document.addEventListener('DOMContentLoaded', async () => {
     const gameId = _dailyData.game.gameId;
 
     if (gameId === 'baba-black-sheep') {
-      // Route through story → explain → game
       _openStoryScreen();
     } else {
-      // Legacy / other games: go straight to canvas
       _startGameSession();
     }
   });
@@ -305,6 +308,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   // STORY SCREEN  (image carousel)
   // ═══════════════════════════════════════════════════════════════════════════
 
+  // Build one dot per story image — automatically reflects STORY_IMAGES.length
   function _buildStoryDots() {
     if (!storyDots) return;
     storyDots.innerHTML = '';
@@ -327,7 +331,6 @@ document.addEventListener('DOMContentLoaded', async () => {
     storyImg.src = STORY_IMAGES[_storyIndex];
     storyImg.alt = `Story image ${_storyIndex + 1} of ${STORY_IMAGES.length}`;
 
-    // Dots
     storyDots.querySelectorAll('.story-dot').forEach((dot, i) => {
       dot.classList.toggle('active', i === _storyIndex);
     });
@@ -336,15 +339,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     const isLast  = _storyIndex === STORY_IMAGES.length - 1;
 
     storyPrevBtn.disabled = isFirst;
-
-    // On the last slide: hide the right arrow, show "Let's Play!" button
     storyNextBtn.classList.toggle('hidden', isLast);
     storyToExplainBtn.classList.toggle('hidden', !isLast);
   }
 
-  storyBackBtn.addEventListener('click', () => {
-    showScreen('menu');
-  });
+  storyBackBtn.addEventListener('click', () => showScreen('menu'));
 
   storyPrevBtn.addEventListener('click', () => {
     if (_storyIndex > 0) { _storyIndex--; _renderStorySlide(); }
@@ -355,7 +354,6 @@ document.addEventListener('DOMContentLoaded', async () => {
   });
 
   storyToExplainBtn.addEventListener('click', () => {
-    // Reset explanation screen state
     explainWarning.classList.add('hidden');
     explainStartBtn.disabled = false;
     showScreen('explain');
@@ -371,33 +369,27 @@ document.addEventListener('DOMContentLoaded', async () => {
     _renderStorySlide();
   });
 
-  // "Start Game" reveals the one-attempt warning
   explainStartBtn.addEventListener('click', () => {
     explainWarning.classList.remove('hidden');
     explainStartBtn.disabled = true;
-    // Smooth scroll to warning on small screens
     explainWarning.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
   });
 
-  // "Cancel" re-hides the warning
   explainCancelBtn.addEventListener('click', () => {
     explainWarning.classList.add('hidden');
     explainStartBtn.disabled = false;
   });
 
-  // "I'm Ready!" — lock the user in and start the game
   explainReadyBtn.addEventListener('click', async () => {
-    explainReadyBtn.disabled = true;
+    explainReadyBtn.disabled    = true;
     explainReadyBtn.textContent = 'Starting…';
 
     try {
       await FazooraAPI.markPlayed();
     } catch (err) {
-      // Non-fatal: the server-side score check is the ultimate guard
       console.warn('[Explain] markPlayed failed:', err.message);
     }
 
-    // Update local state so menu reflects "played" if user comes back
     if (_dailyData) _dailyData.played = true;
 
     _startGameSession();
@@ -408,6 +400,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   // ═══════════════════════════════════════════════════════════════════════════
   function _startGameSession() {
     const { game } = _dailyData;
+
+    // ── Switch to game music at 50% volume ──────────────────────────────────
+    if (typeof MusicManager !== 'undefined') {
+      MusicManager.setVolume(0.5);
+      MusicManager.playTrack('/assets/sounds/fazoora1_track.mp3');
+    }
+
     showScreen('game');
     setTimeout(() => {
       GameEngine.startGame(game.gameId, game.title, _onGameEnd);
@@ -416,6 +415,13 @@ document.addEventListener('DOMContentLoaded', async () => {
 
   async function _onGameEnd(finalScore) {
     _pendingScore = finalScore;
+
+    // ── Restore lobby music when game finishes ──────────────────────────────
+    if (typeof MusicManager !== 'undefined') {
+      MusicManager.setVolume(0.35);
+      MusicManager.restoreDefault();
+    }
+
     _showResultOverlay(finalScore);
 
     try {
@@ -461,6 +467,13 @@ document.addEventListener('DOMContentLoaded', async () => {
   quitGameBtn.addEventListener('click', () => {
     GameEngine.abortGame();
     gameOverlay.classList.add('hidden');
+
+    // Also restore lobby music if player quits mid-game
+    if (typeof MusicManager !== 'undefined') {
+      MusicManager.setVolume(0.35);
+      MusicManager.restoreDefault();
+    }
+
     _loadMenu();
     showToast('Game quit. Come back and try again! 👋');
   });
@@ -527,9 +540,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     return String(str).replace(/[&<>"']/g, m => map[m]);
   }
 
-  // ═══════════════════════════════════════════════════════════════════════════
-  // INJECTED STYLES  (login shake animation)
-  // ═══════════════════════════════════════════════════════════════════════════
+  // ─── Login shake animation ─────────────────────────────────────────────────
   const shakeStyle = document.createElement('style');
   shakeStyle.textContent = `
     @keyframes cardShake {
@@ -543,6 +554,5 @@ document.addEventListener('DOMContentLoaded', async () => {
   `;
   document.head.appendChild(shakeStyle);
 
-  // ── Boot ────────────────────────────────────────────────────────────────────
   boot();
 });

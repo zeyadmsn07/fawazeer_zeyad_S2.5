@@ -7,8 +7,10 @@
  *
  * Usage:
  *   MusicManager.init('/assets/sounds/default_track.mp3');
- *   MusicManager.playTrack('/assets/sounds/other.mp3');  // override
- *   MusicManager.restoreDefault();                        // go back to default
+ *   MusicManager.playTrack('/assets/sounds/fazoora1_track.mp3'); // override
+ *   MusicManager.setVolume(0.5);
+ *   MusicManager.restoreDefault();   // return to lobby music
+ *   MusicManager.playSfx('/assets/sounds/sheep.mp3'); // one-shot SFX
  *   MusicManager.toggleMute();
  */
 const MusicManager = (() => {
@@ -26,13 +28,12 @@ const MusicManager = (() => {
     const promise = _audio.play();
     if (promise !== undefined) {
       promise.catch(() => {
-        // Autoplay blocked — will resume on next user interaction
+        // Autoplay blocked — will resume on the next user interaction
       });
     }
   }
 
   function _onUserInteraction() {
-    // Attempt to resume if paused (handles browser autoplay restriction)
     if (_audio && _audio.paused && !_muted) {
       _tryPlay();
     }
@@ -41,10 +42,10 @@ const MusicManager = (() => {
   // ─── Public API ──────────────────────────────────────────────────────────
 
   /**
-   * Call once on page load. Attempts to start the default track immediately;
-   * falls back to playing on the first user interaction if autoplay is blocked.
+   * Call once on page load with the default looping track.
+   * Attempts immediate playback; falls back to first user interaction.
    *
-   * @param {string} defaultSrc  Path to the default looping audio file.
+   * @param {string} defaultSrc
    */
   function init(defaultSrc) {
     if (_initialized) return;
@@ -67,17 +68,16 @@ const MusicManager = (() => {
 
     _tryPlay();
 
-    // Resume on first interaction (handles browsers that block autoplay)
     ['click', 'keydown', 'touchstart'].forEach(evt => {
       document.addEventListener(evt, _onUserInteraction);
     });
   }
 
   /**
-   * Override the current track with a new one (e.g. gameplay music).
-   * Call restoreDefault() to return to the menu/lobby music.
+   * Override the looping background track (e.g. switch to gameplay music).
+   * Call restoreDefault() to return to the lobby/menu track.
    *
-   * @param {string} src  Path to the replacement audio file.
+   * @param {string} src
    */
   function playTrack(src) {
     if (!_audio) return;
@@ -91,7 +91,7 @@ const MusicManager = (() => {
   }
 
   /**
-   * Return to the default looping track (e.g. after gameplay ends).
+   * Return to the default looping track.
    */
   function restoreDefault() {
     if (!_audio || !_defaultSrc) return;
@@ -105,22 +105,39 @@ const MusicManager = (() => {
   }
 
   /**
-   * Pause playback without changing the current source.
+   * Play a one-shot sound effect without interrupting the background track.
+   * A fresh Audio element is created, played, then garbage-collected.
+   *
+   * @param {string} src       Path to the SFX file.
+   * @param {number} [vol=0.8] Playback volume (0.0–1.0).
+   */
+  function playSfx(src, vol = 0.8) {
+    if (_muted || !src) return;
+    try {
+      const sfx   = new Audio(src);
+      sfx.volume  = Math.max(0, Math.min(1, vol));
+      sfx.play().catch(() => {});  // silently swallow autoplay blocks
+    } catch (err) {
+      // Non-critical — SFX failure should never crash the game
+    }
+  }
+
+  /**
+   * Pause the background track without changing the source.
    */
   function pause() {
     if (_audio) _audio.pause();
   }
 
   /**
-   * Resume the current track (useful after a temporary pause).
+   * Resume the current background track.
    */
   function resume() {
     _tryPlay();
   }
 
   /**
-   * Toggle mute on/off. Returns the new muted state (true = muted).
-   *
+   * Toggle mute. Returns the new muted state (true = muted).
    * @returns {boolean}
    */
   function toggleMute() {
@@ -136,8 +153,8 @@ const MusicManager = (() => {
   }
 
   /**
-   * Set volume (0.0 – 1.0).
-   *
+   * Set background-track volume (0.0–1.0).
+   * Does NOT affect SFX volume.
    * @param {number} v
    */
   function setVolume(v) {
@@ -149,7 +166,18 @@ const MusicManager = (() => {
   function isMuted() { return _muted; }
 
   /** @returns {boolean} */
-  function isPlaying() { return _audio && !_audio.paused; }
+  function isPlaying() { return !!(_audio && !_audio.paused); }
 
-  return { init, playTrack, restoreDefault, pause, resume, toggleMute, setVolume, isMuted, isPlaying };
+  return {
+    init,
+    playTrack,
+    restoreDefault,
+    playSfx,
+    pause,
+    resume,
+    toggleMute,
+    setVolume,
+    isMuted,
+    isPlaying,
+  };
 })();

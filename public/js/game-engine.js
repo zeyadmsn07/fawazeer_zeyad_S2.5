@@ -7,6 +7,7 @@ const ASSETS = {
   characters: {
     left:  '/assets/characters/char1.png',
     right: '/assets/characters/char2.png',
+    char3: '/assets/characters/char3.png',  // ← game mascot used in baba-black-sheep
   },
 
   ui: {
@@ -19,7 +20,9 @@ const ASSETS = {
   },
 
   sounds: {
-    defaultTrack: '/assets/sounds/default_track.mp3',
+    defaultTrack:   '/assets/sounds/default_track.mp3',
+    fazoora1Track:  '/assets/sounds/fazoora1_track.mp3',  // gameplay music
+    sheepSfx:       '/assets/sounds/sheep.mp3',           // image-change SFX
   },
 
   day1: {
@@ -30,26 +33,30 @@ const ASSETS = {
   },
 
   'baba-black-sheep': {
-    // White sheep variants
+    // White sheep image variants
     whiteSheep: [
       '/assets/img/imgwhite1.png',
       '/assets/img/imgwhite2.png',
       '/assets/img/imgwhite3.png',
       '/assets/img/imgwhite4.png',
     ],
-    // Black sheep variants
+    // Black sheep image variants
     blackSheep: [
       '/assets/img/imgblack1.png',
       '/assets/img/imgblack2.png',
     ],
+    // Bottom-right mascot character
+    char3:    '/assets/characters/char3.png',
+    // Sound effect played on every image change
+    sheepSfx: '/assets/sounds/sheep.mp3',
   },
 };
 
 const GameEngine = (() => {
   const _registry = {};
 
-  let _activeGame  = null;
-  let _rafHandle   = null;
+  let _activeGame   = null;
+  let _rafHandle    = null;
   let _sessionStart = null;
 
   let _canvas, _ctx, _overlay, _hudScore, _hudTimer, _hudTitle;
