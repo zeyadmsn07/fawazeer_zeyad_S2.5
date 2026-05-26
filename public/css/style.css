@@ -126,8 +126,8 @@ body {
 .character {
   position: fixed;
   bottom: -250px;          /* ← how much is hidden below the screen edge */
-  width:  900px;           /* ← character width  */
-  height: 1350px;           /* ← character height */
+  width:  920px;           /* ← character width  */
+  height: 1380px;           /* ← character height */
   background-size: contain;
   background-repeat: no-repeat;
   background-position: bottom center;
@@ -146,7 +146,7 @@ body {
 
 /* ── Left character ── */
 .character--left {
-  left: -200px;                /* ← distance from LEFT edge of screen */
+  left: -250px;                /* ← distance from LEFT edge of screen */
   animation: charBobLeft 3s ease-in-out infinite;
 }
 
@@ -157,14 +157,14 @@ body {
 
 /* ── Right character ── */
 .character--right {
-  right: -220px;               /* ← distance from RIGHT edge of screen */
+  right: -270px;               /* ← distance from RIGHT edge of screen */
   animation: charBobRight 3.4s ease-in-out infinite;
   animation-delay: 0.5s;
 }
 
 @keyframes charBobRight {
-  0%,  100% { bottom: -270px; rotate: 10deg;}   /* ← must match .character bottom value */
-  50%       { bottom: -250px; }   /* ← bobs UP by 20px */
+  0%,  100% { bottom: -290px; rotate: 10deg;}   /* ← must match .character bottom value */
+  50%       { bottom: -270px; }   /* ← bobs UP by 20px */
 }
 
 /* ── Menu mode ── */
@@ -380,8 +380,8 @@ body {
 /* Logo image — large, static, glowing */
 .logo-img {
   width: auto;
-  max-width: 640px;        
-  max-height: 360px;       
+  max-width: 720px;        
+  max-height: 405px;       
   object-fit: contain;
   display: block;
   margin: 0 auto;
@@ -411,7 +411,7 @@ body {
     0 8px 40px rgba(0, 0, 0, 0.35),
     inset 0 1px 0 rgba(255,255,255,0.25);
   overflow: hidden;
-  padding-top: 2rem;
+  padding-top: 1rem;
   width: 100%;
 }
 

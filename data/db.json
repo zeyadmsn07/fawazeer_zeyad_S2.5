@@ -33,6 +33,38 @@
       "password": "12345*"
     }
   ],
-  "scores": {},
-  "playedStates": {}
+  "scores": {
+    "1": {
+      "2026-05-26": {
+        "gameId": "baba-black-sheep",
+        "score": 100,
+        "completedAt": "2026-05-25T23:16:07.129Z"
+      }
+    },
+    "2": {
+      "2026-05-26": {
+        "gameId": "baba-black-sheep",
+        "score": 1200,
+        "completedAt": "2026-05-26T00:22:03.945Z"
+      }
+    },
+    "3": {
+      "2026-05-26": {
+        "gameId": "baba-black-sheep",
+        "score": 1000,
+        "completedAt": "2026-05-26T00:12:49.028Z"
+      }
+    }
+  },
+  "playedStates": {
+    "1": {
+      "2026-05-26": true
+    },
+    "2": {
+      "2026-05-26": true
+    },
+    "3": {
+      "2026-05-26": true
+    }
+  }
 }
