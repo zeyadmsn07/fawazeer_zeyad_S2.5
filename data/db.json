@@ -9,19 +9,19 @@
       "password": "12345*"
     },
     {
-      "username": "Joe E.",
+      "username": "Youssef E.",
       "password": "12345*"
     },
     {
-      "username": "Joe S.",
+      "username": "Youssef S.",
       "password": "12345*"
     },
     {
-      "username": "Mo S.",
+      "username": "Mohamed S.",
       "password": "12345*"
     },
     {
-      "username": "Mo I.",
+      "username": "Mohamed I.",
       "password": "12345*"
     },
     {
@@ -34,6 +34,13 @@
     }
   ],
   "scores": {
+    "3": {
+      "2026-05-26": {
+        "gameId": "baba-black-sheep",
+        "score": 80,
+        "completedAt": "2026-05-25T23:16:07.129Z"
+      }
+    },
     "1": {
       "2026-05-26": {
         "gameId": "baba-black-sheep",
@@ -41,19 +48,40 @@
         "completedAt": "2026-05-25T23:16:07.129Z"
       }
     },
-    "2": {
+    "8": {
       "2026-05-26": {
         "gameId": "baba-black-sheep",
-        "score": 1200,
+        "score": 90,
         "completedAt": "2026-05-26T00:22:03.945Z"
       }
     },
-    "3": {
+    "7": {
       "2026-05-26": {
         "gameId": "baba-black-sheep",
-        "score": 1000,
+        "score": 70,
         "completedAt": "2026-05-26T00:12:49.028Z"
       }
+    },
+    "6": {
+      "2026-05-26": {
+        "gameId": "baba-black-sheep",
+        "score": 140,
+        "completedAt": "2026-05-26T13:52:37.015Z"
+      }
+    },
+    "5": {
+      "2026-05-26": {
+        "gameId": "baba-black-sheep",
+        "score": 70,
+        "completedAt": "2026-05-26T13:52:37.015Z"
+      },
+      "2": {
+      "2026-05-26": {
+        "gameId": "baba-black-sheep",
+        "score": 80,
+        "completedAt": "2026-05-26T13:52:37.015Z"
+      }
+    },
     }
   },
   "playedStates": {
@@ -64,6 +92,9 @@
       "2026-05-26": true
     },
     "3": {
+      "2026-05-26": true
+    },
+    "6": {
       "2026-05-26": true
     },
     "7": {
